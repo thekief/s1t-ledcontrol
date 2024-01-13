@@ -1,0 +1,11 @@
+[package]
+name = "s1t-ledcontrol"
+description = "Control the LED ring found in the T9 or S1 mini-pc series."
+version = "0.2.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.4.15", features = ["derive"] }
+serialport = { version = "4.3.0", features = ["default"] }
+env_logger = { version = "0.10.1" }
+log = { version = "0.4.20" }
