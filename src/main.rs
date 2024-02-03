@@ -194,6 +194,7 @@ fn rainbow_bright_fast() {
         mode: Mode::Rainbow,
         brightness: 1,
         speed: 1,
+        baud_rate: 9600,
     };
     println!("Writing configuration ({})", config);
 
@@ -207,6 +208,7 @@ fn breathing_bright_quite_fast() {
         mode: Mode::Breathing,
         brightness: 1,
         speed: 2,
+        baud_rate: 9600,
     };
     println!("Writing configuration ({})", config);
 
@@ -220,6 +222,7 @@ fn breathing_bright_quite_slow() {
         mode: Mode::Rainbow,
         brightness: 1,
         speed: 4,
+        baud_rate: 9600,
     };
     println!("Writing configuration ({})", config);
 
