@@ -86,6 +86,14 @@ struct Configuration {
     default_value_t = 1,
     )]
     speed: u8,
+
+    /// Set the speed of the animations.
+    #[arg(
+    short = 'r',
+    long,
+    default_value_t = 9600,
+    )]
+    baud_rate: u32,
 }
 
 impl Display for Configuration {
@@ -134,7 +142,7 @@ fn main() {
     config.brightness = 6 - config.brightness;
 
     // access the port and write the data to it
-    let mut port = serialport::new(config.device.as_str(), 10_000)
+    let mut port = serialport::new(config.device.as_str(), config.baud_rate)
         .timeout(Duration::from_millis(10))
         .open()
         .expect("Failed to open port");
