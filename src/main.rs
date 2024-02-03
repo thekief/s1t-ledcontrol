@@ -1,11 +1,11 @@
+use clap::{Parser, ValueEnum};
+use log::{debug, error, info, LevelFilter};
 use std::fmt::{Display, Formatter};
 use std::io::Write;
 use std::path::Path;
 use std::process::exit;
 use std::thread::sleep;
 use std::time::Duration;
-use clap::{Parser, ValueEnum};
-use log::{debug, error, info, LevelFilter};
 
 #[derive(Clone, Debug, ValueEnum)]
 enum Mode {
@@ -19,24 +19,38 @@ enum Mode {
 impl From<&Mode> for u8 {
     fn from(value: &Mode) -> Self {
         match value {
-            Mode::Off => { 0x04 }
-            Mode::Auto => { 0x05 }
-            Mode::Rainbow => { 0x01 }
-            Mode::Breathing => { 0x02 }
-            Mode::ColourCycle => { 0x03 }
+            Mode::Off => 0x04,
+            Mode::Auto => 0x05,
+            Mode::Rainbow => 0x01,
+            Mode::Breathing => 0x02,
+            Mode::ColourCycle => 0x03,
         }
     }
 }
 
 impl Display for Mode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Mode::Off => { "off" }
-            Mode::Auto => { "auto" }
-            Mode::Rainbow => { "rainbow" }
-            Mode::Breathing => { "breathing" }
-            Mode::ColourCycle => { "colourcycle" }
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Mode::Off => {
+                    "off"
+                }
+                Mode::Auto => {
+                    "auto"
+                }
+                Mode::Rainbow => {
+                    "rainbow"
+                }
+                Mode::Breathing => {
+                    "breathing"
+                }
+                Mode::ColourCycle => {
+                    "colourcycle"
+                }
+            }
+        )
     }
 }
 
@@ -47,9 +61,9 @@ fn get_default_port() -> String {
     } else {
         // we assume that other than Windows, only Linux is installed on the systems
         "/dev/ttyUSB0"
-    }.to_string();
+    }
+    .to_string();
 }
-
 
 /// Change the colour of your T9 Plus without pesky drivers.
 #[derive(Parser, Debug)]
@@ -72,36 +86,24 @@ struct Configuration {
     mode: Mode,
 
     /// Set the brightness of the LEDs.
-    #[arg(
-    short,
-    long,
-    default_value_t = 1,
-    )]
+    #[arg(short, long, default_value_t = 1)]
     brightness: u8,
 
     /// Set the speed of the animations.
-    #[arg(
-    short,
-    long,
-    default_value_t = 1,
-    )]
+    #[arg(short, long, default_value_t = 1)]
     speed: u8,
 
     /// Set the speed of the animations.
-    #[arg(
-    short = 'r',
-    long,
-    default_value_t = 9600,
-    )]
+    #[arg(short = 'r', long, default_value_t = 9600)]
     baud_rate: u32,
 }
 
 impl Display for Configuration {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Mode: {} Brightness: {} Speed: {}",
-               self.mode,
-               self.brightness,
-               self.speed
+        write!(
+            f,
+            "Mode: {} Brightness: {} Speed: {}",
+            self.mode, self.brightness, self.speed
         )
     }
 }
@@ -109,9 +111,12 @@ impl Display for Configuration {
 fn main() {
     env_logger::builder()
         .format(|buf, rec| {
-            writeln!(buf, "[{}] {}",
-                     rec.level().as_str().to_ascii_lowercase(),
-                     rec.args())
+            writeln!(
+                buf,
+                "[{}] {}",
+                rec.level().as_str().to_ascii_lowercase(),
+                rec.args()
+            )
         })
         .filter_level(LevelFilter::Info)
         .is_test(true)
@@ -121,19 +126,19 @@ fn main() {
 
     // validate the incoming data
     if !Path::new(config.device.as_str()).exists() {
-        error!("The path '{}' is not accessible.",config.device );
+        error!("The path '{}' is not accessible.", config.device);
         exit(1);
     }
 
     let in_range = |x: &u8| (1..=5).contains(x);
 
     if !in_range(&config.brightness) {
-        error!("The brightness cannot be '{}'.",config.brightness );
+        error!("The brightness cannot be '{}'.", config.brightness);
         exit(1);
     }
 
     if !in_range(&config.speed) {
-        error!("The speed cannot be '{}'.",config.speed );
+        error!("The speed cannot be '{}'.", config.speed);
         exit(1);
     }
 
@@ -152,28 +157,23 @@ fn main() {
 
     let duration = Duration::from_millis(5);
 
-    port
-        .write_all(&[0xfa])
+    port.write_all(&[0xfa])
         .expect("Failed to write the start byte.");
     sleep(duration);
 
-    port
-        .write_all(&[u8::from(&config.mode)])
+    port.write_all(&[u8::from(&config.mode)])
         .expect("Failed to write the start byte.");
     sleep(duration);
 
-    port
-        .write_all(&[config.brightness])
+    port.write_all(&[config.brightness])
         .expect("Failed to write the brightness byte.");
     sleep(duration);
 
-    port
-        .write_all(&[config.speed])
+    port.write_all(&[config.speed])
         .expect("Failed to write the speed byte.");
     sleep(duration);
 
-    port
-        .write_all(&[create_checksum(&config)])
+    port.write_all(&[create_checksum(&config)])
         .expect("Failed to write the checksum byte.");
 }
 
