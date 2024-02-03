@@ -85,15 +85,15 @@ struct Configuration {
     )]
     mode: Mode,
 
-    /// Set the brightness of the LEDs.
+    /// Set the brightness of the LEDs between 1 and 5.
     #[arg(short, long, default_value_t = 1)]
     brightness: u8,
 
-    /// Set the speed of the animations.
+    /// Set the speed of the animations between 1 and 5.
     #[arg(short, long, default_value_t = 1)]
     speed: u8,
 
-    /// Set the speed of the animations.
+    /// Set the baud rate.
     #[arg(short = 'r', long, default_value_t = 9600)]
     baud_rate: u32,
 }
@@ -152,6 +152,14 @@ fn main() {
         .open()
         .expect("Failed to open port");
 
+    debug!(
+        r#"Serial Port Configuration:
+            Baud Rate: {}
+            Port     : {}"#,
+        port.baud_rate().unwrap(),
+        port.name().unwrap()
+    );
+
     info!("Opened the serial port.");
     debug!("Writing configuration ({})", config);
 
@@ -175,6 +183,8 @@ fn main() {
 
     port.write_all(&[create_checksum(&config)])
         .expect("Failed to write the checksum byte.");
+
+    info!("Successfully update configuration.");
 }
 
 fn create_checksum(config: &Configuration) -> u8 {
