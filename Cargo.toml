@@ -1,5 +1,5 @@
 [package]
-name = "s1t-ledcontrol"
+name = "ledcontrol"
 description = "Control the LED ring found in the T9 or S1 mini-pc series."
 version = "0.2.0"
 edition = "2021"
